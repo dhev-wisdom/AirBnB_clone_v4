@@ -2,8 +2,34 @@
 
 $(document).ready(function () {
   const checkedBoxList = {};
-  $('input[type:checkbox]').on('change', function () {
-    // const amenityID = $(this).data('id');
+  const checkedStates = {};
+  const checkedCities = {};
+
+  $('.locations > ul > h2 > input[type="checkbox"]').change(function () {
+    const stateId = $(this).attr('data-id');
+    const stateName = $(this).attr('data-name');
+    if ($(this).is(':checked')) {
+      checkedStates[stateId] = stateName;
+    } else {
+      delete checkedStates[stateId];
+    }
+
+    updateResult();
+  }
+
+  $('.locations > ul > ul > li > input[type="checkbox"]').change(function () {
+    const cityId = $(this).attr('data-id');
+    const cityName = $(this).attr('data-name');
+    if ($(this).is(':checked')) {
+      checkedCities[cityId] = cityName;
+    } else {
+      delete checkedCities[cityId];
+    }
+
+    updateResult();
+  }
+
+  $('.amenities > input[type:checkbox]').on('change', function () {
     const amenityId = $(this).attr('data-id');
     const amenityName = $(this).attr('data-name');
     if ($(this).is(':checked')) {
@@ -20,6 +46,15 @@ $(document).ready(function () {
       h4Tag.text(selectedAmenities);
     }
   });
+
+  function updateResult () {
+    const locations = Object.assign({}, checkedStates, checkedCities);
+    if (Object.values(locations).length === 0) {
+      $('.locations H4').html('&nbsp;');
+    } else {
+      $('.locations H4').text(Object.values(locations).join(', '));
+    }
+  }
 
   $.get('http://0.0.0.0:5001/api/v1/places_search/', function (data, textStatus) {
     const apiStatus = $('div#api_status');
@@ -45,7 +80,9 @@ $(document).ready(function () {
       method: 'POST',
       contentType: 'application/json',
       data: JSON.stringify({
-        amenities: Object.keys(checkedBoxList)
+        amenities: Object.keys(checkedBoxList),
+        states: Object.keys(checkedStates),
+        cities: Object.keys(checkedCities),
       }),
       dataType: 'json',
       success: articleCreatePlaces

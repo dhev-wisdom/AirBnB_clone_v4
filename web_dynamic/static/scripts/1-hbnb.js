@@ -1,3 +1,5 @@
+/* global $ */
+
 $(document).ready(function () {
   let checkedBoxList = {};
   $('input[type:checkbox]').on('change', function () {
